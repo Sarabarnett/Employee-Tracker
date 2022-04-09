@@ -6,6 +6,7 @@ This project is a command-line application built to manage a company's employee 
 
 ## Usage
 Please refer to the following link to view a video demo to see how the app can be used.
+https://drive.google.com/file/d/1y0sIlMK8rnmUBUledcmu1zDoqAP-SpPn/view?usp=sharing
 
 
 ## Screenshot
