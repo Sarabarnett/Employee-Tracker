@@ -1,6 +1,6 @@
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
-const consoleTable = require("console.table");
+require("console.table");
 require('dotenv').config();
 
 //database connection
@@ -24,7 +24,7 @@ function startPrompts() {
     message: "What would you like to do?", 
     name: "choice", 
     choices: [ 
-    "View All Deparments", 
+    "View All Departments", 
     "View All Roles",
     "View All Employees", 
     "Add Department",
@@ -56,11 +56,11 @@ function startPrompts() {
       break;
 
       case "Add Employee": 
-      addEmployee();
+      
       break;
 
       case "Update Employee": 
-      updateEmployee();
+      
       break;
     }
   });
@@ -71,5 +71,83 @@ function startPrompts() {
 
 //view departnemts
 function viewDepartments() {
-  db.query("SELECT")
+  db.query(`SELECT * FROM department`,
+  function(err, res) {
+    if (err) throw err
+    console.table(res);
+    startPrompts();
+  });
+}
+
+//view roles
+function viewRoles() {
+  db.query("SELECT title, salary, department_id FROM role",
+  function(err, res) {
+    if (err) throw err
+    console.table(res);
+    startPrompts();
+  });
+}
+
+
+//view employess
+function viewEmployees() {
+  db.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employee INNER JOIN role on role.id = employee.role_id INNER JOIN department on department.id = role.department_id left join employee e on employee.manager_id = e.id;",
+  function(err, res) {
+    if (err) throw err
+    console.table(res);
+    startPrompts();
+  });
+}
+
+//add department
+function addDepartment() {
+  inquirer.prompt(
+    {
+      name: "name",
+      type: "input",
+      message: "What department would you like to add?"
+    })
+    .then(function(res) {
+      db.query("INSERT INTO department SET ?",
+      {
+        name: res.name
+      },
+      function(err, res) {
+        if (err) throw err
+        console.table(res);
+        startPrompts();
+      }
+    )
+  });
+}
+
+//add role (title and salary)
+function addRole() {
+  db.query("SELECT role.title AS Title, role.salary AS Salary FROM role", function(err, res){
+     inquirer.prompt([
+    {
+      name: "Title",
+      type: "input", 
+      message: "What is the title of this role?"
+    },
+    {
+      name: "Salary",
+      type: "input",
+      message: "What is the salary for this role?"
+    }])
+    .then(function(res) {
+      db.query("INSERT INTO role SET ?",
+      {
+        title: res.Title,
+        salary: res.Salary,
+      },
+      function(err) {
+        if (err) throw err
+        console.table(res);
+        startPrompts();
+      }
+    )
+  }) 
+  })
 }
